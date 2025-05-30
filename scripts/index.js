@@ -18,6 +18,7 @@ function createCard(element) {
   const cardTitle = cardElement.querySelector(".card__title");
 
   cardImage.src = element.link;
+  cardImage.alt = element.description;
   cardTitle.textContent = element.name;
 
   cardButton.addEventListener("click", deleteCard);
@@ -26,7 +27,7 @@ function createCard(element) {
 }
 
 function deleteCard(evt) {
-  evt.target.parentElement.remove();
+  evt.target.closest('.card').remove();
 }
 
 initialCards.forEach(function (item) {
