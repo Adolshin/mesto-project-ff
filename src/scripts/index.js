@@ -37,15 +37,35 @@ const initialCards = [
 const cardContainer = document.querySelector(".places__list");
 const editButton = document.querySelector(".profile__edit-button");
 const addButton = document.querySelector(".profile__add-button");
-// const cardImage = document.querySelector(".card__image");
+
 const editModal = document.querySelector(".popup_type_edit");
+const addModal = document.querySelector(".popup_type_new-card");
+const imageModal = document.querySelector(".popup_type_image");
 
 initialCards.forEach(function (item) {
   cardContainer.append(createCard(item));
 });
+const cardImage = document.querySelector(".card__image");
 cardContainer.addEventListener("click", deleteCard);
 cardContainer.addEventListener("click", likeCard);
 
 editButton.addEventListener("click", openModal(editModal));
+addButton.addEventListener("click", openModal(addModal));
+cardImage.addEventListener("click", openModal(imageModal));
 
-editModal.addEventListener("click", closeModal(editModal));
+editModal.addEventListener("click", function (evt) { 
+  if (evt.target.classList.contains("popup__close")||evt.target.classList.contains("popup")) {
+     closeModal(editModal);
+  }
+});
+
+addModal.addEventListener("click", function (evt) { 
+  if (evt.target.classList.contains("popup__close")||evt.target.classList.contains("popup")) {
+     closeModal(addModal);
+  }
+});
+imageModal.addEventListener("click", function (evt) { 
+  if (evt.target.classList.contains("popup__close")||evt.target.classList.contains("popup")) {
+     closeModal(imageModal);
+  }
+});

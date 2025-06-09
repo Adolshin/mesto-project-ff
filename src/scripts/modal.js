@@ -6,10 +6,10 @@ function openModal(element) {
 
 function closeModal(element) {
   // const elCloseBtn = element.querySelector(".popup__close");
-  return function (evt) {
-    console.log(evt.target);
+
+  
     element.classList.remove("popup_is-opened");
-  };
+
 }
 
 export { openModal, closeModal };
