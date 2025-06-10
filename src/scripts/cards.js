@@ -1,27 +1,34 @@
-const cardTemplate = document.querySelector("#card-template").content;
+const initialCards = [
+  {
+    name: "Архыз",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
+    description: "Летнее высокогорье",
+  },
+  {
+    name: "Челябинская область",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
+    description: "Зимняя река",
+  },
+  {
+    name: "Иваново",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
+    description: "Городаская застройка",
+  },
+  {
+    name: "Камчатка",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
+    description: "Камчатская сопка",
+  },
+  {
+    name: "Холмогорский район",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
+    description: "Железная дорога в лесу",
+  },
+  {
+    name: "Байкал",
+    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
+    description: "Зимнее побережие озера Байкал",
+  },
+];
 
-function createCard(element) {
-  const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
-  const cardImage = cardElement.querySelector(".card__image");
-  const cardTitle = cardElement.querySelector(".card__title");
-
-  cardImage.src = element.link;
-  cardImage.alt = element.description;
-  cardTitle.textContent = element.name; 
-
-  return cardElement;
-}
-
-function deleteCard(evt) {
-  if (evt.target.classList.contains("card__delete-button")) {
-    evt.target.closest(".card").remove();
-  }
-}
-
-function likeCard(evt) {
-  if (evt.target.classList.contains("card__like-button")) {
-    evt.target.classList.toggle("card__like-button_is-active");
-  }
-}
-
-export { createCard, likeCard, deleteCard };
+export { initialCards };
