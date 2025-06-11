@@ -15,13 +15,11 @@ const imageModal = document.querySelector(".popup_type_image");
 const imageModalPicture = imageModal.querySelector(".popup__image");
 const imageModalText = imageModal.querySelector(".popup__caption");
 
-function clickCardHandler(evt) {
-  if (evt.target.classList.contains("card__image")) {
-    const cardTitle = evt.currentTarget.querySelector(".card__title");
+function clickCardHandler(evt) {  
+    const cardTitle = evt.target.alt;
     imageModalPicture.src = evt.target.src;
-    imageModalText.textContent = cardTitle.textContent;
+    imageModalText.textContent = cardTitle;
     openModal(imageModal);
-  }
 }
 
 const editButton = document.querySelector(".profile__edit-button");
