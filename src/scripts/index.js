@@ -52,6 +52,7 @@ const addName = addModal.querySelector(".popup__input_type_card-name");
 const addUrl = addModal.querySelector(".popup__input_type_url");
 
 addButton.addEventListener("click", function () {
+  addForm.reset();
   openModal(addModal);
 });
 
@@ -63,8 +64,7 @@ function submitAddFormHandler(evt) {
   object.description = addName.value;
   cardContainer.prepend(
     createCard(object, deleteCardHandler, likeCardHandler, clickCardHandler)
-  );
-  addForm.reset();
+  ); 
   closeModal(addModal);
 }
 
