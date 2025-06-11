@@ -16,9 +16,6 @@ const imageModalPicture = imageModal.querySelector(".popup__image");
 const imageModalText = imageModal.querySelector(".popup__caption");
 
 function clickCardHandler(evt) {
-  if (!imageModalPicture) {
-    return;
-  }
   if (evt.target.classList.contains("card__image")) {
     const cardTitle = evt.currentTarget.querySelector(".card__title");
     imageModalPicture.src = evt.target.src;
@@ -31,9 +28,7 @@ const editButton = document.querySelector(".profile__edit-button");
 const editModal = document.querySelector(".popup_type_edit");
 const editForm = editModal.querySelector(".popup__form");
 const editName = editModal.querySelector(".popup__input_type_name");
-const editDescription = editModal.querySelector(
-  ".popup__input_type_description"
-);
+const editDescription = editModal.querySelector(".popup__input_type_description");
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
@@ -58,26 +53,21 @@ const addForm = addModal.querySelector(".popup__form");
 const addName = addModal.querySelector(".popup__input_type_card-name");
 const addUrl = addModal.querySelector(".popup__input_type_url");
 
-
 addButton.addEventListener("click", function () {
   openModal(addModal);
 });
 
 function submitAddFormHandler(evt) {
   evt.preventDefault();
-  const object = {}
+  const object = {};
   object.name = addName.value;
   object.link = addUrl.value;
   object.description = addName.value;
   cardContainer.prepend(
     createCard(object, deleteCardHandler, likeCardHandler, clickCardHandler)
   );
-  // addForm.reset();
+  addForm.reset();
   closeModal(addModal);
-  // addName.value = '';
-  // addUrl.value = '';
-};
+}
 
 addForm.addEventListener("submit", submitAddFormHandler);
-
-

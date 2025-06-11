@@ -1,12 +1,7 @@
 const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
 
-function createCard(
-  element,
-  delCallback = noop,
-  likeCallback = noop,
-  clickCallback = noop
-) {
+function createCard( element, delCallback = noop, likeCallback = noop, clickCallback = noop) {
   if (!cardTemplate) {
     return
   }
@@ -29,14 +24,14 @@ function createCard(
   return cardElement;
 }
 
-const deleteCardHandler = function (evt, callback) {
+function deleteCardHandler (evt, callback) {
   if (evt.target.classList.contains("card__delete-button")) {
     evt.target.closest(".card").remove();
     evt.target.closest(".card").removeEventListener("click", callback);
   }
 };
 
-const likeCardHandler = function (evt) {
+function likeCardHandler (evt) {
   if (evt.target.classList.contains("card__like-button")) {
     evt.target.classList.toggle("card__like-button_is-active");
   }
