@@ -2,6 +2,8 @@ import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { createCard, deleteCardHandler, likeCardHandler } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
+import { enableValidation } from "./validate.js";
+
 
 const cardContainer = document.querySelector(".places__list");
 
@@ -15,18 +17,20 @@ const imageModal = document.querySelector(".popup_type_image");
 const imageModalPicture = imageModal.querySelector(".popup__image");
 const imageModalText = imageModal.querySelector(".popup__caption");
 
-function clickCardHandler(evt) {  
-    const cardTitle = evt.target.alt;
-    imageModalPicture.src = evt.target.src;
-    imageModalText.textContent = cardTitle;
-    openModal(imageModal);
+function clickCardHandler(evt) {
+  const cardTitle = evt.target.alt;
+  imageModalPicture.src = evt.target.src;
+  imageModalText.textContent = cardTitle;
+  openModal(imageModal);
 }
 
 const editButton = document.querySelector(".profile__edit-button");
 const editModal = document.querySelector(".popup_type_edit");
 const editForm = editModal.querySelector(".popup__form");
 const editName = editModal.querySelector(".popup__input_type_name");
-const editDescription = editModal.querySelector(".popup__input_type_description");
+const editDescription = editModal.querySelector(
+  ".popup__input_type_description"
+);
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
@@ -64,8 +68,10 @@ function submitAddFormHandler(evt) {
   object.description = addName.value;
   cardContainer.prepend(
     createCard(object, deleteCardHandler, likeCardHandler, clickCardHandler)
-  ); 
+  );
   closeModal(addModal);
 }
 
 addForm.addEventListener("submit", submitAddFormHandler);
+
+enableValidation();
