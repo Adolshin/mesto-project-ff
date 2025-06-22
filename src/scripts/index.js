@@ -13,42 +13,38 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 const cardContainer = document.querySelector(".places__list");
-const profileTitle = document.querySelector(".profile__title");
-const profileDesc = document.querySelector(".profile__description");
-const profileImage = document.querySelector(".profile__image");
+const userName = document.querySelector(".profile__title");
+const userAbout = document.querySelector(".profile__description");
+const userAvatar = document.querySelector(".profile__image");
+
 
 function clickCardHandler(evt) {
   const imageModal = document.querySelector(".popup_type_image");
   const imageModalPicture = imageModal.querySelector(".popup__image");
-  const imageModalText = imageModal.querySelector(".popup__caption");
-  const cardTitle = evt.target.alt;
+  const imageModalTitle = imageModal.querySelector(".popup__caption");
   imageModalPicture.src = evt.target.src;
-  imageModalText.textContent = cardTitle;
+  imageModalTitle.textContent = evt.target.alt;
   openModal(imageModal);
 }
 
-
-
-function handleEditModal(evt) {
+function handleEditModal() {
   const editButton = document.querySelector(".profile__edit-button");
   const editModal = document.querySelector(".popup_type_edit");
   const editForm = editModal.querySelector(".popup__form");
   const editName = editForm.querySelector(".popup__input_type_name");
-  const editDesc = editForm.querySelector(".popup__input_type_description");
+  const editAbout = editForm.querySelector(".popup__input_type_description");
 
-  function submitEditFormHandler(evt) {
-    evt.preventDefault(evt);
-    profileTitle.textContent = editName.value;
-    profileDesc.textContent = editDesc.value;
-    saveUserData();
-    closeModal(editModal);
-  }
-
-  function openEditFormHandler(evt) {
-    editName.value = profileTitle.textContent;
-    editDesc.value = profileDesc.textContent;
+  function openEditFormHandler() {
+    editName.value = userName.textContent;
+    editAbout.value = userAbout.textContent;
     clearValidation(editForm, validationConfig);
     openModal(editModal);
+  }
+
+  function submitEditFormHandler(evt) {
+    evt.preventDefault();
+    saveUser(editName, editAbout);
+    closeModal(editModal);
   }
 
   editButton.addEventListener("click", openEditFormHandler);
@@ -60,7 +56,7 @@ function handleAddModal() {
   const addModal = document.querySelector(".popup_type_new-card");
   const addForm = addModal.querySelector(".popup__form");
   const addName = addForm.querySelector(".popup__input_type_card-name");
-  const addUrl = addForm.querySelector(".popup__input_type_url");
+  const addLink = addForm.querySelector(".popup__input_type_url");
 
   function openAddFormHandler() {
     addForm.reset();
@@ -70,12 +66,10 @@ function handleAddModal() {
 
   function submitAddFormHandler(evt) {
     evt.preventDefault();
-    const object = {};
-    object.name = addName.value;
-    object.link = addUrl.value;
-    cardContainer.prepend(
-      createCard(object, deleteCardHandler, likeCardHandler, clickCardHandler)
-    );
+    const card = {};
+    card.name = addName.value;
+    card.link = addLink.value;
+    saveCard(card);
     closeModal(addModal);
   }
 
@@ -111,41 +105,37 @@ function getCards() {
   }).then((res) => res.json());
 }
 
-function renderUser() {
-  getUser().then((user) => {
-    profileTitle.textContent = user.name;
-    profileDesc.textContent = user.about;
-    profileImage.style = `background-image: url(${user.avatar})`;
-  });
+function renderUser(user) {
+  userName.textContent = user.name;
+  userAbout.textContent = user.about;
+  userAvatar.style = `background-image: url(${user.avatar})`;
 }
 
-function renderCards() {
-  getCards().then((cards) => {
-    cards.forEach(function (card) {
-      cardContainer.append(
-        createCard(card, deleteCardHandler, likeCardHandler, clickCardHandler)
-      );
-    });
-  });
-}
+// function renderCards() {
+//   getCards().then((cards) => {
+//     cards.forEach(function (card) {
+//       cardContainer.append(
+//         createCard(card, deleteCardHandler, likeCardHandler, clickCardHandler)
+//       );
+//     });
+//   });
+// }
 
 let userId = null;
 
-Promise.all([getUser(), getCards()]).then(([userData, cards]) => {
-  userId = userData._id;
-  console.log(userData);
-  console.log(cards);
-  renderUser();
-  renderCards();
+Promise.all([getUser(), getCards()]).then(([user, cards]) => {
+  userId = user._id;
+  console.log(user);
+  console.log(cards);  
+  renderUser(user);
+  cards.forEach(function (card) {
+    cardContainer.append(
+      createCard(card, deleteCardHandler, likeCardHandler, clickCardHandler)
+    );
+  });
 });
 
-function addUserToDOM (name, desc) {
-  profileTitle.textContent = name;
-  profileDesc.textContent = desc
-}
-
-
-function saveUserData() {
+function saveUser(name, about) {
   fetch("https://nomoreparties.co./v1/wff-cohort-41/users/me", {
     method: "PATCH",
     headers: {
@@ -153,13 +143,14 @@ function saveUserData() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: profileTitle.textContent,
-      about: profileDesc.textContent,
+      name: name.value,
+      about: about.value,
     }),
   })
     .then((res) => res.json())
-    .then((res) => {
-      console.log(res);
+    .then((user) => {
+      console.log(user);
+      renderUser(user);
     });
 }
 
@@ -168,19 +159,19 @@ function saveCard(card) {
     method: "POST",
 
     body: JSON.stringify({
-      title: newPost.title,
-      body: newPost.body,
+      name: card.name,
+      link: card.link,
     }),
-    // и заголовки
     headers: {
-      "Content-Type": "application/json; charset=UTF-8",
+      authorization: "515ed3f0-64e3-49c6-80e8-8e6a14a63a3c",
+      "Content-Type": "application/json",
     },
   })
-    .then((response) => response.json())
-    .then((post) => {
-      addPostToDOM(
-        document.querySelector(".container"),
-        createPostMarkup(post)
+    .then((res) => res.json())
+    .then((card) => {
+      console.log(card);
+      cardContainer.prepend(
+        createCard(card, deleteCardHandler, likeCardHandler, clickCardHandler)
       );
     });
 }
