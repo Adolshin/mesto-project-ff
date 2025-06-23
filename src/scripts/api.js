@@ -6,7 +6,7 @@ const config = {
   },
 };
 
-function getUser() {
+function getUserApi() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
   }).then((res) => {
@@ -17,7 +17,7 @@ function getUser() {
   });
 }
 
-function getCards() {
+function getCardsApi() {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   }).then((res) => {
@@ -28,7 +28,7 @@ function getCards() {
   });
 }
 
-function patchUser(name, about) {
+function patchUserApi(name, about) {
   return fetch(`${config.baseUrl}/users/me`, {
     method: "PATCH",
     headers: config.headers,
@@ -44,7 +44,7 @@ function patchUser(name, about) {
   });
 }
 
-function postCard(card) {
+function postCardApi(card) {
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
     headers: config.headers,
@@ -60,7 +60,7 @@ function postCard(card) {
   });
 }
 
-function deleteCard(cardId) {
+function deleteCardApi(cardId) {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
     headers: config.headers
@@ -72,4 +72,4 @@ function deleteCard(cardId) {
   });
 }
 
-export { getUser, getCards, patchUser, postCard, deleteCard };
+export { getUserApi, getCardsApi, patchUserApi, postCardApi, deleteCardApi };

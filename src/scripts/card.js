@@ -1,4 +1,3 @@
-import { deleteCard } from "./api.js";
 
 const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
@@ -24,7 +23,7 @@ function createCard(
   cardImage.alt = element.name;
   cardTitle.textContent = element.name;
   cardLikeCounter.textContent = element.likes.length;
-  ownerId = element.owner._id;
+  ownerId = element.owner._id;  
   if (userId != ownerId) {
     cardDeleteButton.remove();
   }
@@ -38,15 +37,13 @@ function createCard(
   return cardElement;
 }
 
-function deleteCardHandler(cardElement, cardId) {
-  deleteCard(cardId).then(() => {
+function deleteCard(cardElement) {  
     cardElement.remove();
-    cardElement === null;
-  });
+    cardElement = null;
 }
 
-function likeCardHandler(evt) {
+function likeCard(evt) {
   evt.target.classList.toggle("card__like-button_is-active");
 }
 
-export { createCard, deleteCardHandler, likeCardHandler };
+export { createCard, deleteCard, likeCard };

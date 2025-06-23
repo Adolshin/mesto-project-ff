@@ -1,9 +1,16 @@
 import "../pages/index.css";
-import { createCard, deleteCardHandler, likeCardHandler } from "./card.js";
+import { createCard, deleteCard, likeCard } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
-import { getUser, getCards, patchUser, postCard } from "./api.js";
+import {
+  getUserApi,
+  getCardsApi,
+  patchUserApi,
+  postCardApi,
+  deleteCardApi,
+} from "./api.js";
 
+let userId = null;
 const validationConfig = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -17,7 +24,7 @@ const userName = document.querySelector(".profile__title");
 const userAbout = document.querySelector(".profile__description");
 const userAvatar = document.querySelector(".profile__image");
 
-function clickCardHandler(evt) {
+function openImageModal(evt) {
   const imageModal = document.querySelector(".popup_type_image");
   const imageModalPicture = imageModal.querySelector(".popup__image");
   const imageModalTitle = imageModal.querySelector(".popup__caption");
@@ -33,21 +40,21 @@ function handleEditModal() {
   const editName = editForm.querySelector(".popup__input_type_name");
   const editAbout = editForm.querySelector(".popup__input_type_description");
 
-  function openEditFormHandler() {
+  function openEditForm() {
     editName.value = userName.textContent;
     editAbout.value = userAbout.textContent;
     clearValidation(editForm, validationConfig);
     openModal(editModal);
   }
 
-  function submitEditFormHandler(evt) {
+  function submitEditForm(evt) {
     evt.preventDefault();
     saveUser(editName, editAbout);
     closeModal(editModal);
   }
 
-  editButton.addEventListener("click", openEditFormHandler);
-  editForm.addEventListener("submit", submitEditFormHandler);
+  editButton.addEventListener("click", openEditForm);
+  editForm.addEventListener("submit", submitEditForm);
 }
 
 function handleAddModal() {
@@ -57,13 +64,13 @@ function handleAddModal() {
   const addName = addForm.querySelector(".popup__input_type_card-name");
   const addLink = addForm.querySelector(".popup__input_type_url");
 
-  function openAddFormHandler() {
+  function openAddForm() {
     addForm.reset();
     clearValidation(addForm, validationConfig);
     openModal(addModal);
   }
 
-  function submitAddFormHandler(evt) {
+  function submitAddForm(evt) {
     evt.preventDefault();
     const card = {};
     card.name = addName.value;
@@ -72,8 +79,8 @@ function handleAddModal() {
     closeModal(addModal);
   }
 
-  addButton.addEventListener("click", openAddFormHandler);
-  addForm.addEventListener("submit", submitAddFormHandler);
+  addButton.addEventListener("click", openAddForm);
+  addForm.addEventListener("submit", submitAddForm);
 }
 
 enableValidation(validationConfig);
@@ -86,48 +93,43 @@ function renderUser(user) {
   userAvatar.style = `background-image: url(${user.avatar})`;
 }
 
-let userId = null;
+function renderCard(card, userId) {
+  const newCard = createCard(
+    card,
+    userId,
+    handleDeleteCard,
+    likeCard,
+    openImageModal
+  );
+  return newCard;
+}
 
-Promise.all([getUser(), getCards()]).then(([user, cards]) => {
+Promise.all([getUserApi(), getCardsApi()]).then(([user, cards]) => {
   userId = user._id;
   console.log(user);
   console.log(cards);
   renderUser(user);
   cards.forEach(function (card) {
-    cardContainer.append(
-      createCard(
-        card,
-        userId,
-        deleteCardHandler,
-        likeCardHandler,
-        clickCardHandler
-      )
-    );
+    cardContainer.append(renderCard(card, userId));
   });
 });
 
 function saveUser(name, about) {
-  patchUser(name, about).then((user) => {
-    console.log(user);
+  patchUserApi(name, about).then((user) => {
     renderUser(user);
   });
 }
 
 function saveCard(card) {
-  postCard(card).then((card) => {
-    console.log(userId);
-    cardContainer.prepend(
-      createCard(
-        card,
-        userId,
-        deleteCardHandler,
-        likeCardHandler,
-        clickCardHandler
-      )
-    );
+  postCardApi(card).then((card) => {
+    cardContainer.prepend(renderCard(card, userId));
   });
 }
 
+function handleDeleteCard(card, cardId) {
+  deleteCardApi(cardId).then(() => {
+    deleteCard(card);
+  });
+}
 
-
-
+// const newCard = createCard(card, userId, handleDeleteCard, likeCard, openImageModal);
