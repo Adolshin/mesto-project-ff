@@ -28,15 +28,15 @@ const userName = document.querySelector(".profile__title");
 const userAbout = document.querySelector(".profile__description");
 const userAvatar = document.querySelector(".profile__image");
 
-function renderUser(user) {
-  userName.textContent = user.name;
-  userAbout.textContent = user.about;
-  userAvatar.style = `background-image: url(${user.avatar})`;
+function renderUser(userObj) {
+  userName.textContent = userObj.name;
+  userAbout.textContent = userObj.about;
+  userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
-function renderCard(card, userId) {
+function renderCard(cardObj, userId) {
   const newCard = createCard(
-    card,
+    cardObj,
     userId,
     handleDeleteCard,
     handlelikeCard,
@@ -45,49 +45,49 @@ function renderCard(card, userId) {
   return newCard;
 }
 
-function saveUser(user) {
-  patchUserApi(user).then((resUser) => {
-    renderUser(resUser);
+function saveUser(userObj) {
+  patchUserApi(userObj).then((userObjUpd) => {
+    renderUser(userObjUpd);
   });
 }
 
-function saveCard(card) {
-  postCardApi(card).then((resCard) => {
-    cardContainer.prepend(renderCard(resCard, userId));
+function saveCard(cardObj) {
+  postCardApi(cardObj).then((cardObjUpd) => {
+    cardContainer.prepend(renderCard(cardObjUpd, userId));
   });
 }
 
-function handleDeleteCard(card, cardId) {
+function handleDeleteCard(element, cardId) {
   deleteCardApi(cardId).then(() => {
-    deleteCard(card);
+    deleteCard(element);
   });
 }
 
 function handlelikeCard(likeElement, couterElement, cardId, status ) {
   if (!status) {
     putLikeApi(cardId)
-      .then((resCard) => {
-        console.log(resCard.likes.length);
+      .then((cardObjUpd) => {
+        console.log(cardObjUpd.likes.length);
         likeCard(likeElement);
-        renderLikesCounter(couterElement, resCard.likes.length);
+        renderLikesCounter(couterElement, cardObjUpd.likes.length);
       })
   } else {
     deleteLikeApi(cardId)
-      .then((resCard) => {
-        console.log(resCard.likes.length);
+      .then((cardObjUpd) => {
+        console.log(cardObjUpd.likes.length);
         likeCard(likeElement);
-        renderLikesCounter(couterElement, resCard.likes.length);
+        renderLikesCounter(couterElement, cardObjUpd.likes.length);
       })
   }
 }
 
-Promise.all([getUserApi(), getCardsApi()]).then(([resUser, resCards]) => {
-  userId = resUser._id;
-  console.log(resUser);
-  console.log(resCards);
-  renderUser(resUser);
-  resCards.forEach(function (resCard) {
-    cardContainer.append(renderCard(resCard, userId));
+Promise.all([getUserApi(), getCardsApi()]).then(([userObjUpd, cardsObjUpd]) => {
+  userId = userObjUpd._id;
+  console.log(userObjUpd);
+  console.log(cardsObjUpd);
+  renderUser(userObjUpd);
+  cardsObjUpd.forEach(function (cardObjUpd) {
+    cardContainer.append(renderCard(cardObjUpd, userId));
   });
 });
 
@@ -116,10 +116,10 @@ function handleEditModal() {
 
   function submitEditForm(evt) {
     evt.preventDefault();
-    const user = {};
-    user.name = editName.value;
-    user.about = editAbout.value;
-    saveUser(user);
+    const userObj = {};
+    userObj.name = editName.value;
+    userObj.about = editAbout.value;
+    saveUser(userObj);
     closeModal(editModal);
   }
 
@@ -142,10 +142,10 @@ function handleAddModal() {
 
   function submitAddForm(evt) {
     evt.preventDefault();
-    const card = {};
-    card.name = addName.value;
-    card.link = addLink.value;
-    saveCard(card);
+    const cardObj = {};
+    cardObj.name = addName.value;
+    cardObj.link = addLink.value;
+    saveCard(cardObj);
     closeModal(addModal);
   }
 

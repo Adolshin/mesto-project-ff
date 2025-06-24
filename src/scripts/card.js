@@ -2,7 +2,7 @@ const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
 
 function createCard(
-  element,
+  cardObj,
   userId,
   delCallback = noop,
   likeCallback = noop,
@@ -18,19 +18,19 @@ function createCard(
   const cardDeleteButton = cardElement.querySelector(".card__delete-button");
   const cardLikeCounter = cardElement.querySelector(".card__like-counter");
 
-  cardImage.src = element.link;
-  cardImage.alt = element.name;
-  cardTitle.textContent = element.name;
+  cardImage.src = cardObj.link;
+  cardImage.alt = cardObj.name;
+  cardTitle.textContent = cardObj.name;
 
-  renderLikesCounter(cardLikeCounter, element.likes.length);
+  renderLikesCounter(cardLikeCounter, cardObj.likes.length);
 
 
-  if (userId != element.owner._id) {
+  if (userId != cardObj.owner._id) {
     cardDeleteButton.remove();
   }
 
-  element.likes.forEach((item) => {
-    if (item._id == userId) {
+  cardObj.likes.forEach((like) => {
+    if (like._id == userId) {
       likeCard(cardLikeButton);
     }
   });
@@ -51,12 +51,11 @@ function createCard(
     // });
 
     console.log(likeStatus);
-    likeCallback(cardLikeButton, cardLikeCounter, element._id, likeStatus);
+    likeCallback(cardLikeButton, cardLikeCounter, cardObj._id, likeStatus);
     
   });
-  cardDeleteButton.addEventListener("click", function () {
-    console.log(element._id);
-    delCallback(cardElement, element._id);
+  cardDeleteButton.addEventListener("click", function () {   
+    delCallback(cardElement, cardObj._id);
   });
 
   return cardElement;
