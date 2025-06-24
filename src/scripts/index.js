@@ -19,7 +19,7 @@ import {
 } from "./api.js";
 
 let userId = null;
-// let likeObj = null;
+
 const validationConfig = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -37,10 +37,6 @@ const userAvatar = document.querySelector(".profile__image");
 function renderUser(userObj) {
   userName.textContent = userObj.name;
   userAbout.textContent = userObj.about;
-  // userAvatar.style = `background-image: url(${userObj.avatar})`;
-}
-
-function renderAvatar(userObj) {
   userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
@@ -72,8 +68,7 @@ function handleDeleteCard(element, cardId) {
 
 function saveAvatar(user) {
   patchAvatarApi(user).then((userUpd) => {
-    console.log(userUpd);
-    renderAvatar(userUpd);
+    renderUser(userUpd);
   });
 }
 
