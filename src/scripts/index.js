@@ -8,6 +8,8 @@ import {
   patchUserApi,
   postCardApi,
   deleteCardApi,
+  putLikeApi,
+  deleteLikeApi,
 } from "./api.js";
 
 let userId = null;
@@ -19,6 +21,7 @@ const validationConfig = {
   inputErrorClass: "popup__input_type_error",
   errorClass: "popup__error_visible",
 };
+
 const cardContainer = document.querySelector(".places__list");
 const userName = document.querySelector(".profile__title");
 const userAbout = document.querySelector(".profile__description");
@@ -35,7 +38,7 @@ function renderCard(card, userId) {
     card,
     userId,
     handleDeleteCard,
-    likeCard,
+    handlelikeCard,
     openImageModal
   );
   return newCard;
@@ -59,6 +62,24 @@ function handleDeleteCard(card, cardId) {
   });
 }
 
+function handlelikeCard(likeElement, cardId, status ) {
+  if (!status) {
+    putLikeApi(cardId)
+      .then((likes) => {       
+        console.log(likes);
+    
+      })
+      .then(() => {
+        likeCard(likeElement);
+      });
+  } else {
+    deleteLikeApi(cardId)
+      .then((likes) => {       
+        console.log(likes);    
+      })
+  }
+}
+
 Promise.all([getUserApi(), getCardsApi()]).then(([resUser, resCards]) => {
   userId = resUser._id;
   console.log(resUser);
@@ -68,8 +89,6 @@ Promise.all([getUserApi(), getCardsApi()]).then(([resUser, resCards]) => {
     cardContainer.append(renderCard(resCard, userId));
   });
 });
-
-
 
 function openImageModal(evt) {
   const imageModal = document.querySelector(".popup_type_image");
@@ -136,6 +155,3 @@ function handleAddModal() {
 enableValidation(validationConfig);
 handleEditModal();
 handleAddModal();
-
-
-

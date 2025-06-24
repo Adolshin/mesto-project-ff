@@ -26,8 +26,17 @@ function createCard(
   if (userId != element.owner._id) {
     cardDeleteButton.remove();
   }
-  cardLikeButton.addEventListener("click", likeCallback);
+  const likeStatus = cardLikeButton.classList.contains('card__like-button_is-active');
+   
   cardImage.addEventListener("click", clickCallback);
+  cardLikeButton.addEventListener("click", function () {  
+    // console.log(element._id); 
+    // console.log(element.name); 
+    // console.log(element.likes.length); 
+    likeCallback(cardLikeButton, element._id, likeStatus);
+    cardLikeCounter.textContent = element.likes.length;
+  
+  });
   cardDeleteButton.addEventListener("click", function () {   
     console.log(element._id);
     delCallback(cardElement, element._id);
@@ -41,8 +50,8 @@ function deleteCard(cardElement) {
     cardElement = null;
 }
 
-function likeCard(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+function likeCard(likeElement) {  
+  likeElement.classList.toggle("card__like-button_is-active");
 }
 
 export { createCard, deleteCard, likeCard };
