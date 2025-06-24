@@ -1,5 +1,5 @@
 import "../pages/index.css";
-import { createCard, deleteCard, likeCard } from "./card.js";
+import { createCard, deleteCard, likeCard, renderLikesCounter } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
 import {
@@ -13,6 +13,7 @@ import {
 } from "./api.js";
 
 let userId = null;
+// let likeObj = null;
 const validationConfig = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -62,20 +63,20 @@ function handleDeleteCard(card, cardId) {
   });
 }
 
-function handlelikeCard(likeElement, cardId, status ) {
+function handlelikeCard(likeElement, couterElement, cardId, status ) {
   if (!status) {
     putLikeApi(cardId)
-      .then((likes) => {       
-        console.log(likes);
-    
-      })
-      .then(() => {
+      .then((resCard) => {
+        console.log(resCard.likes.length);
         likeCard(likeElement);
-      });
+        renderLikesCounter(couterElement, resCard.likes.length);
+      })
   } else {
     deleteLikeApi(cardId)
-      .then((likes) => {       
-        console.log(likes);    
+      .then((resCard) => {
+        console.log(resCard.likes.length);
+        likeCard(likeElement);
+        renderLikesCounter(couterElement, resCard.likes.length);
       })
   }
 }

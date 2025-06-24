@@ -1,4 +1,3 @@
-
 const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
 
@@ -22,22 +21,40 @@ function createCard(
   cardImage.src = element.link;
   cardImage.alt = element.name;
   cardTitle.textContent = element.name;
-  cardLikeCounter.textContent = element.likes.length;
+
+  renderLikesCounter(cardLikeCounter, element.likes.length);
+
+
   if (userId != element.owner._id) {
     cardDeleteButton.remove();
   }
-  const likeStatus = cardLikeButton.classList.contains('card__like-button_is-active');
-   
-  cardImage.addEventListener("click", clickCallback);
-  cardLikeButton.addEventListener("click", function () {  
-    // console.log(element._id); 
-    // console.log(element.name); 
-    // console.log(element.likes.length); 
-    likeCallback(cardLikeButton, element._id, likeStatus);
-    cardLikeCounter.textContent = element.likes.length;
-  
+
+  element.likes.forEach((item) => {
+    if (item._id == userId) {
+      likeCard(cardLikeButton);
+    }
   });
-  cardDeleteButton.addEventListener("click", function () {   
+
+  cardImage.addEventListener("click", clickCallback);
+  cardLikeButton.addEventListener("click", function () {
+    // console.log(element._id);
+    // console.log(element.name);
+    const likeStatus = cardLikeButton.classList.contains(
+      "card__like-button_is-active"
+    );
+    // let likeStatus = null;
+    // element.likes.forEach((item) => {
+    //   if (item._id == userId) {
+    //     console.log(item._id);
+    //     likeStatus = true;
+    //   }
+    // });
+
+    console.log(likeStatus);
+    likeCallback(cardLikeButton, cardLikeCounter, element._id, likeStatus);
+    
+  });
+  cardDeleteButton.addEventListener("click", function () {
     console.log(element._id);
     delCallback(cardElement, element._id);
   });
@@ -45,13 +62,27 @@ function createCard(
   return cardElement;
 }
 
-function deleteCard(cardElement) {  
-    cardElement.remove();
-    cardElement = null;
+function deleteCard(element) {
+  element.remove();
+  element = null;
 }
 
-function likeCard(likeElement) {  
-  likeElement.classList.toggle("card__like-button_is-active");
+function likeCard( element ) { 
+  element.classList.toggle("card__like-button_is-active");
+  
+//   const newElement = document.createElement('div');
+//   newElement.textContent = element.likes.length;
+//   likeElement.after(newElement);
+
+// element.before(newElement);
+//   // counterElement.textContent = element.likes.length;
+//   console.log(element)
 }
 
-export { createCard, deleteCard, likeCard };
+function renderLikesCounter(element, value) {
+  element.textContent = value;
+}
+
+function renderButtonStatus(element) {}
+
+export { createCard, deleteCard, likeCard,  renderLikesCounter};
