@@ -56,6 +56,25 @@ function patchUserApi(user) {
     });
 }
 
+function patchAvatarApi(user) {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: "PATCH",
+    headers: config.headers,
+    body: JSON.stringify({
+      avatar: user.avatar,
+    }),
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка: ${res.status}`);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
 function postCardApi(card) {
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
@@ -126,4 +145,4 @@ function deleteLikeApi(cardId) {
 
 
 
-export { getUserApi, getCardsApi, patchUserApi, postCardApi, deleteCardApi, putLikeApi, deleteLikeApi };
+export { getUserApi, getCardsApi, patchUserApi, postCardApi, deleteCardApi, putLikeApi, deleteLikeApi, patchAvatarApi };

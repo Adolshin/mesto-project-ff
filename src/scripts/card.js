@@ -24,7 +24,6 @@ function createCard(
 
   renderLikesCounter(cardLikeCounter, cardObj.likes.length);
 
-
   if (userId != cardObj.owner._id) {
     cardDeleteButton.remove();
   }
@@ -37,24 +36,13 @@ function createCard(
 
   cardImage.addEventListener("click", clickCallback);
   cardLikeButton.addEventListener("click", function () {
-    // console.log(element._id);
-    // console.log(element.name);
     const likeStatus = cardLikeButton.classList.contains(
       "card__like-button_is-active"
     );
-    // let likeStatus = null;
-    // element.likes.forEach((item) => {
-    //   if (item._id == userId) {
-    //     console.log(item._id);
-    //     likeStatus = true;
-    //   }
-    // });
-
-    console.log(likeStatus);
     likeCallback(cardLikeButton, cardLikeCounter, cardObj._id, likeStatus);
-    
   });
-  cardDeleteButton.addEventListener("click", function () {   
+
+  cardDeleteButton.addEventListener("click", function () {
     delCallback(cardElement, cardObj._id);
   });
 
@@ -66,22 +54,12 @@ function deleteCard(element) {
   element = null;
 }
 
-function likeCard( element ) { 
+function likeCard(element) {
   element.classList.toggle("card__like-button_is-active");
-  
-//   const newElement = document.createElement('div');
-//   newElement.textContent = element.likes.length;
-//   likeElement.after(newElement);
-
-// element.before(newElement);
-//   // counterElement.textContent = element.likes.length;
-//   console.log(element)
 }
 
 function renderLikesCounter(element, value) {
   element.textContent = value;
 }
 
-function renderButtonStatus(element) {}
-
-export { createCard, deleteCard, likeCard,  renderLikesCounter};
+export { createCard, deleteCard, likeCard, renderLikesCounter };

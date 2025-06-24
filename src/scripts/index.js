@@ -1,5 +1,10 @@
 import "../pages/index.css";
-import { createCard, deleteCard, likeCard, renderLikesCounter } from "./card.js";
+import {
+  createCard,
+  deleteCard,
+  likeCard,
+  renderLikesCounter,
+} from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
 import {
@@ -10,6 +15,7 @@ import {
   deleteCardApi,
   putLikeApi,
   deleteLikeApi,
+  patchAvatarApi,
 } from "./api.js";
 
 let userId = null;
@@ -31,18 +37,11 @@ const userAvatar = document.querySelector(".profile__image");
 function renderUser(userObj) {
   userName.textContent = userObj.name;
   userAbout.textContent = userObj.about;
-  userAvatar.style = `background-image: url(${userObj.avatar})`;
+  // userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
-function renderCard(cardObj, userId) {
-  const newCard = createCard(
-    cardObj,
-    userId,
-    handleDeleteCard,
-    handlelikeCard,
-    openImageModal
-  );
-  return newCard;
+function renderAvatar(userObj) {
+  userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
 function saveUser(userObj) {
@@ -53,7 +52,15 @@ function saveUser(userObj) {
 
 function saveCard(cardObj) {
   postCardApi(cardObj).then((cardObjUpd) => {
-    cardContainer.prepend(renderCard(cardObjUpd, userId));
+    cardContainer.prepend(
+      createCard(
+        cardObjUpd,
+        userId,
+        handleDeleteCard,
+        handlelikeCard,
+        openImageModal
+      )
+    );
   });
 }
 
@@ -63,21 +70,26 @@ function handleDeleteCard(element, cardId) {
   });
 }
 
-function handlelikeCard(likeElement, couterElement, cardId, status ) {
+function saveAvatar(user) {
+  patchAvatarApi(user).then((userUpd) => {
+    console.log(userUpd);
+    renderAvatar(userUpd);
+  });
+}
+
+function handlelikeCard(likeElement, couterElement, cardId, status) {
   if (!status) {
-    putLikeApi(cardId)
-      .then((cardObjUpd) => {
-        console.log(cardObjUpd.likes.length);
-        likeCard(likeElement);
-        renderLikesCounter(couterElement, cardObjUpd.likes.length);
-      })
+    putLikeApi(cardId).then((cardObjUpd) => {
+      console.log(cardObjUpd.likes.length);
+      likeCard(likeElement);
+      renderLikesCounter(couterElement, cardObjUpd.likes.length);
+    });
   } else {
-    deleteLikeApi(cardId)
-      .then((cardObjUpd) => {
-        console.log(cardObjUpd.likes.length);
-        likeCard(likeElement);
-        renderLikesCounter(couterElement, cardObjUpd.likes.length);
-      })
+    deleteLikeApi(cardId).then((cardObjUpd) => {
+      console.log(cardObjUpd.likes.length);
+      likeCard(likeElement);
+      renderLikesCounter(couterElement, cardObjUpd.likes.length);
+    });
   }
 }
 
@@ -87,7 +99,15 @@ Promise.all([getUserApi(), getCardsApi()]).then(([userObjUpd, cardsObjUpd]) => {
   console.log(cardsObjUpd);
   renderUser(userObjUpd);
   cardsObjUpd.forEach(function (cardObjUpd) {
-    cardContainer.append(renderCard(cardObjUpd, userId));
+    cardContainer.append(
+      createCard(
+        cardObjUpd,
+        userId,
+        handleDeleteCard,
+        handlelikeCard,
+        openImageModal
+      )
+    );
   });
 });
 
@@ -153,6 +173,31 @@ function handleAddModal() {
   addForm.addEventListener("submit", submitAddForm);
 }
 
+function handleAvatarModal() {
+  const button = document.querySelector(".profile__image");
+  const modal = document.querySelector(".popup_type_avatar");
+  const form = modal.querySelector(".popup__form");
+  const link = form.querySelector(".popup__input_type_url");
+
+  function openForm() {
+    form.reset();
+    clearValidation(form, validationConfig);
+    openModal(modal);
+  }
+
+  function submitForm(evt) {
+    evt.preventDefault();
+    const userObj = {};
+    userObj.avatar = link.value;
+    saveAvatar(userObj);
+    closeModal(modal);
+  }
+
+  button.addEventListener("click", openForm);
+  form.addEventListener("submit", submitForm);
+}
+
 enableValidation(validationConfig);
 handleEditModal();
 handleAddModal();
+handleAvatarModal();
