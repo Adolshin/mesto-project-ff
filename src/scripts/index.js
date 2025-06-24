@@ -24,6 +24,53 @@ const userName = document.querySelector(".profile__title");
 const userAbout = document.querySelector(".profile__description");
 const userAvatar = document.querySelector(".profile__image");
 
+function renderUser(user) {
+  userName.textContent = user.name;
+  userAbout.textContent = user.about;
+  userAvatar.style = `background-image: url(${user.avatar})`;
+}
+
+function renderCard(card, userId) {
+  const newCard = createCard(
+    card,
+    userId,
+    handleDeleteCard,
+    likeCard,
+    openImageModal
+  );
+  return newCard;
+}
+
+function saveUser(user) {
+  patchUserApi(user).then((resUser) => {
+    renderUser(resUser);
+  });
+}
+
+function saveCard(card) {
+  postCardApi(card).then((resCard) => {
+    cardContainer.prepend(renderCard(resCard, userId));
+  });
+}
+
+function handleDeleteCard(card, cardId) {
+  deleteCardApi(cardId).then(() => {
+    deleteCard(card);
+  });
+}
+
+Promise.all([getUserApi(), getCardsApi()]).then(([resUser, resCards]) => {
+  userId = resUser._id;
+  console.log(resUser);
+  console.log(resCards);
+  renderUser(resUser);
+  resCards.forEach(function (resCard) {
+    cardContainer.append(renderCard(resCard, userId));
+  });
+});
+
+
+
 function openImageModal(evt) {
   const imageModal = document.querySelector(".popup_type_image");
   const imageModalPicture = imageModal.querySelector(".popup__image");
@@ -49,7 +96,10 @@ function handleEditModal() {
 
   function submitEditForm(evt) {
     evt.preventDefault();
-    saveUser(editName, editAbout);
+    const user = {};
+    user.name = editName.value;
+    user.about = editAbout.value;
+    saveUser(user);
     closeModal(editModal);
   }
 
@@ -87,49 +137,5 @@ enableValidation(validationConfig);
 handleEditModal();
 handleAddModal();
 
-function renderUser(user) {
-  userName.textContent = user.name;
-  userAbout.textContent = user.about;
-  userAvatar.style = `background-image: url(${user.avatar})`;
-}
 
-function renderCard(card, userId) {
-  const newCard = createCard(
-    card,
-    userId,
-    handleDeleteCard,
-    likeCard,
-    openImageModal
-  );
-  return newCard;
-}
 
-Promise.all([getUserApi(), getCardsApi()]).then(([user, cards]) => {
-  userId = user._id;
-  console.log(user);
-  console.log(cards);
-  renderUser(user);
-  cards.forEach(function (card) {
-    cardContainer.append(renderCard(card, userId));
-  });
-});
-
-function saveUser(name, about) {
-  patchUserApi(name, about).then((user) => {
-    renderUser(user);
-  });
-}
-
-function saveCard(card) {
-  postCardApi(card).then((card) => {
-    cardContainer.prepend(renderCard(card, userId));
-  });
-}
-
-function handleDeleteCard(card, cardId) {
-  deleteCardApi(cardId).then(() => {
-    deleteCard(card);
-  });
-}
-
-// const newCard = createCard(card, userId, handleDeleteCard, likeCard, openImageModal);

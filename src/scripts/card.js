@@ -1,10 +1,10 @@
 
 const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
-let ownerId = null;
+
 function createCard(
   element,
-  userId = null,
+  userId,
   delCallback = noop,
   likeCallback = noop,
   clickCallback = noop
@@ -23,13 +23,12 @@ function createCard(
   cardImage.alt = element.name;
   cardTitle.textContent = element.name;
   cardLikeCounter.textContent = element.likes.length;
-  ownerId = element.owner._id;  
-  if (userId != ownerId) {
+  if (userId != element.owner._id) {
     cardDeleteButton.remove();
   }
   cardLikeButton.addEventListener("click", likeCallback);
   cardImage.addEventListener("click", clickCallback);
-  cardDeleteButton.addEventListener("click", function () {
+  cardDeleteButton.addEventListener("click", function () {   
     console.log(element._id);
     delCallback(cardElement, element._id);
   });

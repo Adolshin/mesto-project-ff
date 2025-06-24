@@ -28,13 +28,13 @@ function getCardsApi() {
   });
 }
 
-function patchUserApi(name, about) {
+function patchUserApi(user) {
   return fetch(`${config.baseUrl}/users/me`, {
     method: "PATCH",
     headers: config.headers,
     body: JSON.stringify({
-      name: name.value,
-      about: about.value,
+      name: user.name,
+      about: user.about,
     }),
   }).then((res) => {
     if (res.ok) {
