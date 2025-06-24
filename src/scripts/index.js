@@ -40,13 +40,14 @@ function renderUser(userObj) {
   userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
-function saveUser(userObj) {
+function saveUser(userObj, modal) {
   patchUserApi(userObj).then((userObjUpd) => {
     renderUser(userObjUpd);
+    closeModal(modal);
   });
 }
 
-function saveCard(cardObj) {
+function saveCard(cardObj, modal) {
   postCardApi(cardObj).then((cardObjUpd) => {
     cardContainer.prepend(
       createCard(
@@ -57,6 +58,7 @@ function saveCard(cardObj) {
         openImageModal
       )
     );
+    closeModal(modal);
   });
 }
 
@@ -66,9 +68,10 @@ function handleDeleteCard(element, cardId) {
   });
 }
 
-function saveAvatar(user) {
+function saveAvatar(user, modal) {
   patchAvatarApi(user).then((userUpd) => {
     renderUser(userUpd);
+    closeModal(modal);
   });
 }
 
@@ -107,88 +110,94 @@ Promise.all([getUserApi(), getCardsApi()]).then(([userObjUpd, cardsObjUpd]) => {
 });
 
 function openImageModal(evt) {
-  const imageModal = document.querySelector(".popup_type_image");
-  const imageModalPicture = imageModal.querySelector(".popup__image");
-  const imageModalTitle = imageModal.querySelector(".popup__caption");
-  imageModalPicture.src = evt.target.src;
-  imageModalTitle.textContent = evt.target.alt;
-  openModal(imageModal);
+  const modal = document.querySelector(".popup_type_image");
+  const modalImage = modal.querySelector(".popup__image");
+  const modalTitle = modal.querySelector(".popup__caption");
+  modalImage.src = evt.target.src;
+  modalTitle.textContent = evt.target.alt;
+  openModal(modal);
 }
 
 function handleEditModal() {
-  const editButton = document.querySelector(".profile__edit-button");
-  const editModal = document.querySelector(".popup_type_edit");
-  const editForm = editModal.querySelector(".popup__form");
-  const editName = editForm.querySelector(".popup__input_type_name");
-  const editAbout = editForm.querySelector(".popup__input_type_description");
+  const openBtn = document.querySelector(".profile__edit-button");
+  const modal = document.querySelector(".popup_type_edit");
+  const form = modal.querySelector(".popup__form");
+  const name = form.querySelector(".popup__input_type_name");
+  const about = form.querySelector(".popup__input_type_description");
+  const submitBtn = form.querySelector(".popup__button");
 
   function openEditForm() {
-    editName.value = userName.textContent;
-    editAbout.value = userAbout.textContent;
-    clearValidation(editForm, validationConfig);
-    openModal(editModal);
+    name.value = userName.textContent;
+    about.value = userAbout.textContent;
+    clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
+    openModal(modal);
   }
 
   function submitEditForm(evt) {
     evt.preventDefault();
     const userObj = {};
-    userObj.name = editName.value;
-    userObj.about = editAbout.value;
-    saveUser(userObj);
-    closeModal(editModal);
+    userObj.name = name.value;
+    userObj.about = about.value;
+    submitBtn.textContent = "Сохранение...";
+    saveUser(userObj, modal);
   }
 
-  editButton.addEventListener("click", openEditForm);
-  editForm.addEventListener("submit", submitEditForm);
+  openBtn.addEventListener("click", openEditForm);
+  form.addEventListener("submit", submitEditForm);
 }
 
 function handleAddModal() {
-  const addButton = document.querySelector(".profile__add-button");
-  const addModal = document.querySelector(".popup_type_new-card");
-  const addForm = addModal.querySelector(".popup__form");
-  const addName = addForm.querySelector(".popup__input_type_card-name");
-  const addLink = addForm.querySelector(".popup__input_type_url");
+  const openBtn = document.querySelector(".profile__add-button");
+  const modal = document.querySelector(".popup_type_new-card");
+  const form = modal.querySelector(".popup__form");
+  const name = form.querySelector(".popup__input_type_card-name");
+  const url = form.querySelector(".popup__input_type_url");
+  const submitBtn = form.querySelector(".popup__button");
 
   function openAddForm() {
-    addForm.reset();
-    clearValidation(addForm, validationConfig);
-    openModal(addModal);
+    form.reset();
+    clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
+    openModal(modal);
   }
 
   function submitAddForm(evt) {
     evt.preventDefault();
     const cardObj = {};
-    cardObj.name = addName.value;
-    cardObj.link = addLink.value;
-    saveCard(cardObj);
-    closeModal(addModal);
+    cardObj.name = name.value;
+    cardObj.link = url.value;
+    submitBtn.textContent = "Сохранение...";
+    saveCard(cardObj, modal);
   }
 
-  addButton.addEventListener("click", openAddForm);
-  addForm.addEventListener("submit", submitAddForm);
+  openBtn.addEventListener("click", openAddForm);
+  form.addEventListener("submit", submitAddForm);
 }
 
 function handleAvatarModal() {
-  const button = document.querySelector(".profile__image");
+  const openBtn = document.querySelector(".profile__image");
   const modal = document.querySelector(".popup_type_avatar");
   const form = modal.querySelector(".popup__form");
-  const link = form.querySelector(".popup__input_type_url");
+  const url = form.querySelector(".popup__input_type_url");
+  const submitBtn = form.querySelector(".popup__button");
 
   function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
   function submitForm(evt) {
     evt.preventDefault();
     const userObj = {};
-    userObj.avatar = link.value;
-    saveAvatar(userObj);
-    closeModal(modal);
+    userObj.avatar = url.value;
+    submitBtn.textContent = "Сохранение...";
+    saveAvatar(userObj, modal);
   }
 
-  button.addEventListener("click", openForm);
+  openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
 }
 
