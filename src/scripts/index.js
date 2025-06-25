@@ -62,12 +62,6 @@ function saveCard(cardObj, modal) {
   });
 }
 
-function handleDeleteCard(element, cardId) {
-  deleteCardApi(cardId).then(() => {
-    deleteCard(element);
-  });
-}
-
 function saveAvatar(user, modal) {
   patchAvatarApi(user).then((userUpd) => {
     renderUser(userUpd);
@@ -88,6 +82,30 @@ function handlelikeCard(likeElement, couterElement, cardId, status) {
       likeCard(likeElement);
       renderLikesCounter(couterElement, cardObjUpd.likes.length);
     });
+  }
+}
+
+// let cardIdDelete;
+// let cardDelete;
+
+function handleDeleteCard(element, cardId) {
+  // cardIdDelete = cardId;
+  // cardDelete = element;
+  const modal = document.querySelector(".popup_type_confirm");
+  const form = modal.querySelector(".popup__form");
+  const submitBtn = form.querySelector(".popup__button");
+  submitBtn.textContent = "Да";
+  openModal(modal);
+
+  deleteCardApi(cardId).then(() => {
+    form.addEventListener("submit", submitForm);
+  });
+  
+  function submitForm(evt) {
+    evt.preventDefault();
+    submitBtn.textContent = "Удаление...";
+    deleteCard(element);
+    closeModal(modal);
   }
 }
 
@@ -118,7 +136,7 @@ function openImageModal(evt) {
   openModal(modal);
 }
 
-function handleEditModal() {
+function handleEditUser() {
   const openBtn = document.querySelector(".profile__edit-button");
   const modal = document.querySelector(".popup_type_edit");
   const form = modal.querySelector(".popup__form");
@@ -147,7 +165,7 @@ function handleEditModal() {
   form.addEventListener("submit", submitEditForm);
 }
 
-function handleAddModal() {
+function handleAddCard() {
   const openBtn = document.querySelector(".profile__add-button");
   const modal = document.querySelector(".popup_type_new-card");
   const form = modal.querySelector(".popup__form");
@@ -155,14 +173,14 @@ function handleAddModal() {
   const url = form.querySelector(".popup__input_type_url");
   const submitBtn = form.querySelector(".popup__button");
 
-  function openAddForm() {
+  function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
     submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
-  function submitAddForm(evt) {
+  function submitForm(evt) {
     evt.preventDefault();
     const cardObj = {};
     cardObj.name = name.value;
@@ -171,11 +189,11 @@ function handleAddModal() {
     saveCard(cardObj, modal);
   }
 
-  openBtn.addEventListener("click", openAddForm);
-  form.addEventListener("submit", submitAddForm);
+  openBtn.addEventListener("click", openForm);
+  form.addEventListener("submit", submitForm);
 }
 
-function handleAvatarModal() {
+function handleEditAvatar() {
   const openBtn = document.querySelector(".profile__image");
   const modal = document.querySelector(".popup_type_avatar");
   const form = modal.querySelector(".popup__form");
@@ -201,7 +219,9 @@ function handleAvatarModal() {
   form.addEventListener("submit", submitForm);
 }
 
+
+
 enableValidation(validationConfig);
-handleEditModal();
-handleAddModal();
-handleAvatarModal();
+handleEditUser();
+handleAddCard();
+handleEditAvatar();
