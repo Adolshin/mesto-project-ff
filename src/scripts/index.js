@@ -95,18 +95,18 @@ function handleDeleteCard(element, cardId) {
   const form = modal.querySelector(".popup__form");
   const submitBtn = form.querySelector(".popup__button");
   submitBtn.textContent = "Да";
-  openModal(modal);
+  openModal(modal);  
 
-  deleteCardApi(cardId).then(() => {
-    form.addEventListener("submit", submitForm);
-  });
-  
   function submitForm(evt) {
     evt.preventDefault();
     submitBtn.textContent = "Удаление...";
-    deleteCard(element);
-    closeModal(modal);
+    deleteCardApi(cardId).then(() => {
+      deleteCard(element);
+      closeModal(modal);
+    });
+    
   }
+  form.addEventListener("submit", submitForm);
 }
 
 Promise.all([getUserApi(), getCardsApi()]).then(([userObjUpd, cardsObjUpd]) => {
@@ -218,8 +218,6 @@ function handleEditAvatar() {
   openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
 }
-
-
 
 enableValidation(validationConfig);
 handleEditUser();
