@@ -2,7 +2,16 @@ import "../pages/index.css";
 import { createCard, deleteCard, likeCard, renderLikesCounter } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
-import { getUserApi, getCardsApi, patchUserApi, postCardApi, deleteCardApi, putLikeApi, deleteLikeApi, patchAvatarApi } from "./api.js";
+import {
+  getUserApi,
+  getCardsApi,
+  patchUserApi,
+  postCardApi,
+  deleteCardApi,
+  putLikeApi,
+  deleteLikeApi,
+  patchAvatarApi,
+} from "./api.js";
 
 let userId = null;
 let deletedCardId;
@@ -27,8 +36,9 @@ function handleImageModal(evt) {
   const modal = document.querySelector(".popup_type_image");
   const modalImage = modal.querySelector(".popup__image");
   const modalTitle = modal.querySelector(".popup__caption");
-  modalImage.src = evt.target.src;
-  modalTitle.textContent = evt.target.alt;
+  modalImage.src = evt.target.src; 
+  modalImage.alt = evt.target.alt; // Вашу рекомендацию я сделал в файле card.js, где формировались изначальные картинки, а сюда просто перенес alt оттуда
+  modalTitle.textContent = evt.target.alt.replace("Изображение места: ",""); 
   openModal(modal);
 }
 
@@ -40,16 +50,22 @@ function handleDeleteCard(element, cardId) {
 
 function handleDeleteModal() {
   const form = modalDelete.querySelector(".popup__form");
-  const SubmitBtn = form.querySelector(".popup__button");
+  const submitBtn = form.querySelector(".popup__button");
 
   function submitForm(evt, element, cardId) {
     evt.preventDefault();
-    SubmitBtn.textContent = "Удаление...";
-    deleteCardApi(cardId).then((res) => {
-      deleteCard(element);
-      closeModal(modalDelete);
-      SubmitBtn.textContent = "Да";
-    });
+    submitBtn.textContent = "Удаление...";
+    deleteCardApi(cardId)
+      .then(() => {
+        deleteCard(element);
+        closeModal(modalDelete);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        submitBtn.textContent = "Да";
+      });
   }
   form.addEventListener("submit", function (evt) {
     submitForm(evt, deletedCard, deletedCardId);
@@ -61,11 +77,18 @@ function renderUser(userObj) {
   userAbout.textContent = userObj.about;
 }
 
-function saveUser(userObj, modal) {
-  patchUserApi(userObj).then((userObjRes) => {
-    renderUser(userObjRes);
-    closeModal(modal);
-  });
+function saveUser(userObj, modal, button) {
+  patchUserApi(userObj)
+    .then((userObjRes) => {
+      renderUser(userObjRes);
+      closeModal(modal);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      button.textContent = "Сохранить";
+    });
 }
 
 function handleUserModal() {
@@ -80,7 +103,6 @@ function handleUserModal() {
     name.value = userName.textContent;
     about.value = userAbout.textContent;
     clearValidation(form, validationConfig);
-    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -90,7 +112,7 @@ function handleUserModal() {
     userObj.name = name.value;
     userObj.about = about.value;
     submitBtn.textContent = "Сохранение...";
-    saveUser(userObj, modal);
+    saveUser(userObj, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openEditForm);
@@ -101,11 +123,18 @@ function renderAvatar(userObj) {
   userAvatar.style = `background-image: url(${userObj.avatar})`;
 }
 
-function saveAvatar(userObj, modal) {
-  patchAvatarApi(userObj).then((userObjRes) => {
-    renderAvatar(userObjRes);
-    closeModal(modal);
-  });
+function saveAvatar(userObj, modal, button) {
+  patchAvatarApi(userObj)
+    .then((userObjRes) => {
+      renderAvatar(userObjRes);
+      closeModal(modal);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      button.textContent = "Сохранить";
+    });
 }
 
 function handleAvatarModal() {
@@ -118,7 +147,6 @@ function handleAvatarModal() {
   function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
-    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -127,18 +155,25 @@ function handleAvatarModal() {
     const userObj = {};
     userObj.avatar = url.value;
     submitBtn.textContent = "Сохранение...";
-    saveAvatar(userObj, modal);
+    saveAvatar(userObj, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
 }
 
-function saveCard(cardObj, modal) {
-  postCardApi(cardObj).then((cardObjRes) => {
-    cardContainer.prepend(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
-    closeModal(modal);
-  });
+function saveCard(cardObj, modal, button) {
+  postCardApi(cardObj)
+    .then((cardObjRes) => {
+      cardContainer.prepend(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
+      closeModal(modal);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      button.textContent = "Сохранить";
+    });
 }
 
 function handleCardModal() {
@@ -152,7 +187,6 @@ function handleCardModal() {
   function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
-    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -162,7 +196,7 @@ function handleCardModal() {
     cardObj.name = name.value;
     cardObj.link = url.value;
     submitBtn.textContent = "Сохранение...";
-    saveCard(cardObj, modal);    
+    saveCard(cardObj, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openForm);
@@ -171,26 +205,38 @@ function handleCardModal() {
 
 function handlelikeCard(likeElement, couterElement, cardId, status) {
   if (!status) {
-    putLikeApi(cardId).then((cardObjRes) => {
-      likeCard(likeElement);
-      renderLikesCounter(couterElement, cardObjRes.likes.length);
-    });
+    putLikeApi(cardId)
+      .then((cardObjRes) => {
+        likeCard(likeElement);
+        renderLikesCounter(couterElement, cardObjRes.likes.length);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   } else {
-    deleteLikeApi(cardId).then((cardObjRes) => {
-         likeCard(likeElement);
-      renderLikesCounter(couterElement, cardObjRes.likes.length);
-    });
+    deleteLikeApi(cardId)
+      .then((cardObjRes) => {
+        likeCard(likeElement);
+        renderLikesCounter(couterElement, cardObjRes.likes.length);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 }
 
-Promise.all([getUserApi(), getCardsApi()]).then(([userObjRes, cardsObjRes]) => {
-  userId = userObjRes._id;
-  renderUser(userObjRes);
-  renderAvatar(userObjRes);
-  cardsObjRes.forEach(function (cardObjRes) {
-    cardContainer.append(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
+Promise.all([getUserApi(), getCardsApi()])
+  .then(([userObjRes, cardsObjRes]) => {
+    userId = userObjRes._id;
+    renderUser(userObjRes);
+    renderAvatar(userObjRes);
+    cardsObjRes.forEach(function (cardObjRes) {
+      cardContainer.append(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
+    });
+  })
+  .catch((err) => {
+    console.log(err);
   });
-});
 
 enableValidation(validationConfig);
 handleUserModal();

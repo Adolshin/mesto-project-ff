@@ -1,13 +1,7 @@
 const cardTemplate = document.querySelector("#card-template").content;
 const noop = function () {};
 
-function createCard(
-  cardObj,
-  userId,
-  delCallback = noop,
-  likeCallback = noop,
-  clickCallback = noop
-) {
+function createCard(cardObj, userId, delCallback = noop, likeCallback = noop, clickCallback = noop) {
   if (!cardTemplate) {
     return;
   }
@@ -19,7 +13,8 @@ function createCard(
   const cardLikeCounter = cardElement.querySelector(".card__like-counter");
 
   cardImage.src = cardObj.link;
-  cardImage.alt = cardObj.name;
+  cardImage.alt = `Изображение места: ${cardObj.name}`;
+  cardImage.dataTitle = cardObj.name;
   cardTitle.textContent = cardObj.name;
 
   renderLikesCounter(cardLikeCounter, cardObj.likes.length);
@@ -28,17 +23,17 @@ function createCard(
     cardDeleteButton.remove();
   }
 
-  cardObj.likes.forEach((like) => {
-    if (like._id == userId) {
-      likeCard(cardLikeButton);
-    }
+  let likeStatus = cardObj.likes.some((like) => {
+    return like._id === userId;
   });
+
+  if (likeStatus) {
+    likeCard(cardLikeButton);
+  }
 
   cardImage.addEventListener("click", clickCallback);
   cardLikeButton.addEventListener("click", function () {
-    const likeStatus = cardLikeButton.classList.contains(
-      "card__like-button_is-active"
-    );
+    likeStatus = cardLikeButton.classList.contains("card__like-button_is-active");
     likeCallback(cardLikeButton, cardLikeCounter, cardObj._id, likeStatus);
   });
 
@@ -51,7 +46,6 @@ function createCard(
 
 function deleteCard(element) {
   element.remove();
-  element = null;
 }
 
 function likeCard(element) {

@@ -17,24 +17,21 @@ function closeModal(modal) {
 }
 
 function closeModalClickHandler(evt) {
-  const modalOpen = document.querySelector(".popup_is-opened");
-  if (!modalOpen) {
-    return;
-  } 
-  if (
-    evt.target.classList.contains("popup__close") ||
-    evt.target.classList.contains("popup")
-  ) {
+  if (evt.target.classList.contains("popup__close") || evt.target.classList.contains("popup")) {
+    const modalOpen = document.querySelector(".popup_is-opened");
+    if (!modalOpen) {
+      return;
+    }
     closeModal(modalOpen);
   }
 }
 
 function closeModalKeyHandler(evt) {
-  const modalOpen = document.querySelector(".popup_is-opened");
-  if (!modalOpen) {
-    return;
-  }  
   if (evt.key === "Escape") {
+    const modalOpen = document.querySelector(".popup_is-opened");
+    if (!modalOpen) {
+      return;
+    }
     closeModal(modalOpen);
   }
 }
