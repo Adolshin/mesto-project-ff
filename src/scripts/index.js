@@ -80,6 +80,7 @@ function handleUserModal() {
     name.value = userName.textContent;
     about.value = userAbout.textContent;
     clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -90,7 +91,6 @@ function handleUserModal() {
     userObj.about = about.value;
     submitBtn.textContent = "Сохранение...";
     saveUser(userObj, modal);
-    submitBtn.textContent = "Сохранить";
   }
 
   openBtn.addEventListener("click", openEditForm);
@@ -118,6 +118,7 @@ function handleAvatarModal() {
   function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -127,7 +128,6 @@ function handleAvatarModal() {
     userObj.avatar = url.value;
     submitBtn.textContent = "Сохранение...";
     saveAvatar(userObj, modal);
-    submitBtn.textContent = "Сохранить";
   }
 
   openBtn.addEventListener("click", openForm);
@@ -152,6 +152,7 @@ function handleCardModal() {
   function openForm() {
     form.reset();
     clearValidation(form, validationConfig);
+    submitBtn.textContent = "Сохранить";
     openModal(modal);
   }
 
@@ -161,8 +162,7 @@ function handleCardModal() {
     cardObj.name = name.value;
     cardObj.link = url.value;
     submitBtn.textContent = "Сохранение...";
-    saveCard(cardObj, modal);
-    submitBtn.textContent = "Сохранить";
+    saveCard(cardObj, modal);    
   }
 
   openBtn.addEventListener("click", openForm);
@@ -172,14 +172,12 @@ function handleCardModal() {
 function handlelikeCard(likeElement, couterElement, cardId, status) {
   if (!status) {
     putLikeApi(cardId).then((cardObjRes) => {
-      console.log(cardObjRes.likes.length);
       likeCard(likeElement);
       renderLikesCounter(couterElement, cardObjRes.likes.length);
     });
   } else {
     deleteLikeApi(cardId).then((cardObjRes) => {
-      console.log(cardObjRes.likes.length);
-      likeCard(likeElement);
+         likeCard(likeElement);
       renderLikesCounter(couterElement, cardObjRes.likes.length);
     });
   }
@@ -187,14 +185,13 @@ function handlelikeCard(likeElement, couterElement, cardId, status) {
 
 Promise.all([getUserApi(), getCardsApi()]).then(([userObjRes, cardsObjRes]) => {
   userId = userObjRes._id;
-  console.log(userObjRes);
-  console.log(cardsObjRes);
   renderUser(userObjRes);
   renderAvatar(userObjRes);
   cardsObjRes.forEach(function (cardObjRes) {
     cardContainer.append(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
   });
 });
+
 enableValidation(validationConfig);
 handleUserModal();
 handleCardModal();
