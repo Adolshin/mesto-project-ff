@@ -14,19 +14,19 @@ const getResponseData = (res) => {
   };
 
 
-function getUserApi() {
+function getUserFetch() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
   }).then(getResponseData);
 }
 
-function getCardsApi() {
+function getCardsFetch() {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   }).then(getResponseData)
 }
 
-function patchUserApi(user) {
+function patchUserFetch(user) {
   return fetch(`${config.baseUrl}/users/me`, {
     method: "PATCH",
     headers: config.headers,
@@ -37,7 +37,7 @@ function patchUserApi(user) {
   }).then(getResponseData)
 }
 
-function patchAvatarApi(user) {
+function patchAvatarFetch(user) {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
@@ -47,7 +47,7 @@ function patchAvatarApi(user) {
   }).then(getResponseData)
 }
 
-function postCardApi(card) {
+function postCardFetch(card) {
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
     headers: config.headers,
@@ -58,25 +58,25 @@ function postCardApi(card) {
   }).then(getResponseData)
 }
 
-function deleteCardApi(cardId) {
+function deleteCardFetch(cardId) {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
   }).then(getResponseData)
 }
 
-function putLikeApi(cardId) {
+function putLikeFetch(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "PUT",
     headers: config.headers,
   }).then(getResponseData)
 }
 
-function deleteLikeApi(cardId) {
+function deleteLikeFetch(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
   }).then(getResponseData)
 }
 
-export { getUserApi, getCardsApi, patchUserApi, postCardApi, deleteCardApi, putLikeApi, deleteLikeApi, patchAvatarApi };
+export { getUserFetch, getCardsFetch, patchUserFetch, postCardFetch, deleteCardFetch, putLikeFetch, deleteLikeFetch, patchAvatarFetch };

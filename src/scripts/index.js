@@ -3,14 +3,14 @@ import { createCard, deleteElement, likeCard, renderLikesCounter } from "./card.
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
 import {
-  getUserApi,
-  getCardsApi,
-  patchUserApi,
-  postCardApi,
-  deleteCardApi,
-  putLikeApi,
-  deleteLikeApi,
-  patchAvatarApi,
+  getUserFetch,
+  getCardsFetch,
+  patchUserFetch,
+  postCardFetch,
+  deleteCardFetch,
+  putLikeFetch,
+  deleteLikeFetch,
+  patchAvatarFetch,
 } from "./api.js";
 
 let userId = null;
@@ -48,53 +48,47 @@ function handleImageModal(evt) {
   openModal(modal);
 }
 
-function handleDeleteCard(element, cardId) {
-  deletedCard = element;
+function renderUser(userData) {
+  userName.textContent = userData.name;
+  userAbout.textContent = userData.about;
+}
+
+function renderAvatar(userData) {
+  userAvatar.style = `background-image: url(${userData.avatar})`;
+}
+
+function renderButton(form, text) {
+  const submitBtn = form.querySelector(".popup__button");
+  submitBtn.textContent = text;
+}
+
+function handleDeleteCard(cardElement, cardId) {
+  deletedCard = cardElement;
   deletedCardId = cardId;
   openModal(modalDelete);
 }
 
 function handleDeleteModal() {
   const form = modalDelete.querySelector(".popup__form");
-  const submitBtn = form.querySelector(".popup__button");
 
-  function submitForm(evt, element, cardId) {
+  function submitForm(evt, cardElement, cardId) {
     evt.preventDefault();
-    submitBtn.textContent = "Удаление...";
-    deleteCardApi(cardId)
+    renderButton(form, "Удаление...");
+    deleteCardFetch(cardId)
       .then(() => {
-        deleteElement(element);
+        deleteElement(cardElement);
         closeModal(modalDelete);
       })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
-        submitBtn.textContent = "Да";
+        renderButton(form, "Да");
       });
   }
   form.addEventListener("submit", function (evt) {
     submitForm(evt, deletedCard, deletedCardId);
   });
-}
-
-function renderUser(userData) {
-  userName.textContent = userData.name;
-  userAbout.textContent = userData.about;
-}
-
-function saveUser(userData, modal, button) {
-  patchUserApi(userData)
-    .then((userDataRes) => {
-      renderUser(userDataRes);
-      closeModal(modal);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      button.textContent = "Сохранить";
-    });
 }
 
 function handleUserModal() {
@@ -103,44 +97,35 @@ function handleUserModal() {
   const form = modal.querySelector(".popup__form");
   const name = form.querySelector(".popup__input_type_name");
   const about = form.querySelector(".popup__input_type_description");
-  const submitBtn = form.querySelector(".popup__button");
 
-  function openEditForm() {
+  function openForm() {
     name.value = userName.textContent;
     about.value = userAbout.textContent;
     clearValidation(form, validationConfig);
     openModal(modal);
   }
 
-  function submitEditForm(evt) {
+  function submitForm(evt) {
     evt.preventDefault();
     const userData = {};
     userData.name = name.value;
     userData.about = about.value;
-    submitBtn.textContent = "Сохранение...";
-    saveUser(userData, modal, submitBtn);
+    renderButton(form, "Сохранение...");
+    patchUserFetch(userData)
+      .then((userDataRes) => {
+        renderUser(userDataRes);
+        closeModal(modal);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        renderButton(form, "Сохранить");
+      });
   }
 
-  openBtn.addEventListener("click", openEditForm);
-  form.addEventListener("submit", submitEditForm);
-}
-
-function renderAvatar(userData) {
-  userAvatar.style = `background-image: url(${userData.avatar})`;
-}
-
-function saveAvatar(userData, modal, button) {
-  patchAvatarApi(userData)
-    .then((userDataRes) => {
-      renderAvatar(userDataRes);
-      closeModal(modal);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      button.textContent = "Сохранить";
-    });
+  openBtn.addEventListener("click", openForm);
+  form.addEventListener("submit", submitForm);
 }
 
 function handleAvatarModal() {
@@ -148,7 +133,6 @@ function handleAvatarModal() {
   const modal = document.querySelector(".popup_type_avatar");
   const form = modal.querySelector(".popup__form");
   const url = form.querySelector(".popup__input_type_url");
-  const submitBtn = form.querySelector(".popup__button");
 
   function openForm() {
     form.reset();
@@ -160,26 +144,22 @@ function handleAvatarModal() {
     evt.preventDefault();
     const userData = {};
     userData.avatar = url.value;
-    submitBtn.textContent = "Сохранение...";
-    saveAvatar(userData, modal, submitBtn);
+    renderButton(form, "Сохранение...");
+    patchAvatarFetch(userData)
+      .then((userDataRes) => {
+        renderAvatar(userDataRes);
+        closeModal(modal);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        renderButton(form, "Сохранить");
+      });
   }
 
   openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
-}
-
-function saveCard(cardData, modal, button) {
-  postCardApi(cardData)
-    .then((cardDataRes) => {
-      cardContainer.prepend(createCard(cardDataRes, userId, callbackConfig));
-      closeModal(modal);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      button.textContent = "Сохранить";
-    });
 }
 
 function handleCardModal() {
@@ -188,7 +168,6 @@ function handleCardModal() {
   const form = modal.querySelector(".popup__form");
   const name = form.querySelector(".popup__input_type_card-name");
   const url = form.querySelector(".popup__input_type_url");
-  const submitBtn = form.querySelector(".popup__button");
 
   function openForm() {
     form.reset();
@@ -201,8 +180,18 @@ function handleCardModal() {
     const cardData = {};
     cardData.name = name.value;
     cardData.link = url.value;
-    submitBtn.textContent = "Сохранение...";
-    saveCard(cardData, modal, submitBtn);
+    renderButton(form, "Сохранение...");
+    postCardFetch(cardData)
+      .then((cardDataRes) => {
+        cardContainer.prepend(createCard(cardDataRes, userId, callbackConfig));
+        closeModal(modal);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        renderButton(form, "Сохранить");
+      });
   }
 
   openBtn.addEventListener("click", openForm);
@@ -211,21 +200,19 @@ function handleCardModal() {
 
 function handlelikeCard(likeElement, counterElement, cardId, status) {
   if (!status) {
-    putLikeApi(cardId)
-      .then((cardDataRes) => {  
+    putLikeFetch(cardId)
+      .then((cardDataRes) => {
         likeCard(likeElement);
         renderLikesCounter(counterElement, cardDataRes.likes.length);
-        
       })
       .catch((err) => {
         console.log(err);
       });
   } else {
-    deleteLikeApi(cardId)
+    deleteLikeFetch(cardId)
       .then((cardDataRes) => {
         likeCard(likeElement);
         renderLikesCounter(counterElement, cardDataRes.likes.length);
-        
       })
       .catch((err) => {
         console.log(err);
@@ -233,11 +220,11 @@ function handlelikeCard(likeElement, counterElement, cardId, status) {
   }
 }
 
-Promise.all([getUserApi(), getCardsApi()])
+Promise.all([getUserFetch(), getCardsFetch()])
   .then(([userDataRes, cardsObjRes]) => {
     userId = userDataRes._id;
     renderUser(userDataRes);
-    renderAvatar(userDataRes); 
+    renderAvatar(userDataRes);
     cardsObjRes.forEach(function (cardDataRes) {
       cardContainer.append(createCard(cardDataRes, userId, callbackConfig));
     });
@@ -251,4 +238,3 @@ handleUserModal();
 handleCardModal();
 handleAvatarModal();
 handleDeleteModal();
-
