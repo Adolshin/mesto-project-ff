@@ -1,7 +1,8 @@
 const cardTemplate = document.querySelector("#card-template").content;
-const noop = function () {};
 
-function createCard(cardObj, userId, delCallback = noop, likeCallback = noop, clickCallback = noop) {
+function createCard(cardData, userId, callbacksConfig) {
+  const { imageCallback, likeCallback, delCallback } = callbacksConfig;
+
   if (!cardTemplate) {
     return;
   }
@@ -12,18 +13,18 @@ function createCard(cardObj, userId, delCallback = noop, likeCallback = noop, cl
   const cardDeleteButton = cardElement.querySelector(".card__delete-button");
   const cardLikeCounter = cardElement.querySelector(".card__like-counter");
 
-  cardImage.src = cardObj.link;
-  cardImage.alt = `Изображение места: ${cardObj.name}`;
-  cardImage.dataTitle = cardObj.name;
-  cardTitle.textContent = cardObj.name;
+  cardImage.src = cardData.link;
+  cardImage.alt = `Изображение места: ${cardData.name}`;
+  cardImage.dataTitle = cardData.name;
+  cardTitle.textContent = cardData.name;
 
-  renderLikesCounter(cardLikeCounter, cardObj.likes.length);
+  renderLikesCounter(cardLikeCounter, cardData.likes.length);
 
-  if (userId != cardObj.owner._id) {
-    cardDeleteButton.remove();
+  if (userId != cardData.owner._id) {
+    deleteElement(cardDeleteButton);
   }
 
-  let likeStatus = cardObj.likes.some((like) => {
+  let likeStatus = cardData.likes.some((like) => {
     return like._id === userId;
   });
 
@@ -31,21 +32,22 @@ function createCard(cardObj, userId, delCallback = noop, likeCallback = noop, cl
     likeCard(cardLikeButton);
   }
 
-  cardImage.addEventListener("click", clickCallback);
+  cardImage.addEventListener("click", imageCallback);
   cardLikeButton.addEventListener("click", function () {
     likeStatus = cardLikeButton.classList.contains("card__like-button_is-active");
-    likeCallback(cardLikeButton, cardLikeCounter, cardObj._id, likeStatus);
+    likeCallback(cardLikeButton, cardLikeCounter, cardData._id, likeStatus); 
   });
 
   cardDeleteButton.addEventListener("click", function () {
-    delCallback(cardElement, cardObj._id);
+    delCallback(cardElement, cardData._id);
   });
 
   return cardElement;
 }
 
-function deleteCard(element) {
+function deleteElement(element) {
   element.remove();
+  element = null;
 }
 
 function likeCard(element) {
@@ -56,4 +58,4 @@ function renderLikesCounter(element, value) {
   element.textContent = value;
 }
 
-export { createCard, deleteCard, likeCard, renderLikesCounter };
+export { createCard, deleteElement, likeCard, renderLikesCounter };

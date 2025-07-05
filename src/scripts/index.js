@@ -1,5 +1,5 @@
 import "../pages/index.css";
-import { createCard, deleteCard, likeCard, renderLikesCounter } from "./card.js";
+import { createCard, deleteElement, likeCard, renderLikesCounter } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validate.js";
 import {
@@ -26,6 +26,12 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 
+const callbackConfig = {
+  delCallback: handleDeleteCard,
+  likeCallback: handlelikeCard,
+  imageCallback: handleImageModal,
+};
+
 const cardContainer = document.querySelector(".places__list");
 const userName = document.querySelector(".profile__title");
 const userAbout = document.querySelector(".profile__description");
@@ -36,9 +42,9 @@ function handleImageModal(evt) {
   const modal = document.querySelector(".popup_type_image");
   const modalImage = modal.querySelector(".popup__image");
   const modalTitle = modal.querySelector(".popup__caption");
-  modalImage.src = evt.target.src; 
-  modalImage.alt = evt.target.alt; // Вашу рекомендацию я сделал в файле card.js, где формировались изначальные картинки, а сюда просто перенес alt оттуда
-  modalTitle.textContent = evt.target.alt.replace("Изображение места: ",""); 
+  modalImage.src = evt.target.src;
+  modalImage.alt = evt.target.alt;
+  modalTitle.textContent = evt.target.alt.replace("Изображение места: ", "");
   openModal(modal);
 }
 
@@ -57,7 +63,7 @@ function handleDeleteModal() {
     submitBtn.textContent = "Удаление...";
     deleteCardApi(cardId)
       .then(() => {
-        deleteCard(element);
+        deleteElement(element);
         closeModal(modalDelete);
       })
       .catch((err) => {
@@ -72,15 +78,15 @@ function handleDeleteModal() {
   });
 }
 
-function renderUser(userObj) {
-  userName.textContent = userObj.name;
-  userAbout.textContent = userObj.about;
+function renderUser(userData) {
+  userName.textContent = userData.name;
+  userAbout.textContent = userData.about;
 }
 
-function saveUser(userObj, modal, button) {
-  patchUserApi(userObj)
-    .then((userObjRes) => {
-      renderUser(userObjRes);
+function saveUser(userData, modal, button) {
+  patchUserApi(userData)
+    .then((userDataRes) => {
+      renderUser(userDataRes);
       closeModal(modal);
     })
     .catch((err) => {
@@ -108,25 +114,25 @@ function handleUserModal() {
 
   function submitEditForm(evt) {
     evt.preventDefault();
-    const userObj = {};
-    userObj.name = name.value;
-    userObj.about = about.value;
+    const userData = {};
+    userData.name = name.value;
+    userData.about = about.value;
     submitBtn.textContent = "Сохранение...";
-    saveUser(userObj, modal, submitBtn);
+    saveUser(userData, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openEditForm);
   form.addEventListener("submit", submitEditForm);
 }
 
-function renderAvatar(userObj) {
-  userAvatar.style = `background-image: url(${userObj.avatar})`;
+function renderAvatar(userData) {
+  userAvatar.style = `background-image: url(${userData.avatar})`;
 }
 
-function saveAvatar(userObj, modal, button) {
-  patchAvatarApi(userObj)
-    .then((userObjRes) => {
-      renderAvatar(userObjRes);
+function saveAvatar(userData, modal, button) {
+  patchAvatarApi(userData)
+    .then((userDataRes) => {
+      renderAvatar(userDataRes);
       closeModal(modal);
     })
     .catch((err) => {
@@ -152,20 +158,20 @@ function handleAvatarModal() {
 
   function submitForm(evt) {
     evt.preventDefault();
-    const userObj = {};
-    userObj.avatar = url.value;
+    const userData = {};
+    userData.avatar = url.value;
     submitBtn.textContent = "Сохранение...";
-    saveAvatar(userObj, modal, submitBtn);
+    saveAvatar(userData, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
 }
 
-function saveCard(cardObj, modal, button) {
-  postCardApi(cardObj)
-    .then((cardObjRes) => {
-      cardContainer.prepend(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
+function saveCard(cardData, modal, button) {
+  postCardApi(cardData)
+    .then((cardDataRes) => {
+      cardContainer.prepend(createCard(cardDataRes, userId, callbackConfig));
       closeModal(modal);
     })
     .catch((err) => {
@@ -192,32 +198,34 @@ function handleCardModal() {
 
   function submitForm(evt) {
     evt.preventDefault();
-    const cardObj = {};
-    cardObj.name = name.value;
-    cardObj.link = url.value;
+    const cardData = {};
+    cardData.name = name.value;
+    cardData.link = url.value;
     submitBtn.textContent = "Сохранение...";
-    saveCard(cardObj, modal, submitBtn);
+    saveCard(cardData, modal, submitBtn);
   }
 
   openBtn.addEventListener("click", openForm);
   form.addEventListener("submit", submitForm);
 }
 
-function handlelikeCard(likeElement, couterElement, cardId, status) {
+function handlelikeCard(likeElement, counterElement, cardId, status) {
   if (!status) {
     putLikeApi(cardId)
-      .then((cardObjRes) => {
+      .then((cardDataRes) => {  
         likeCard(likeElement);
-        renderLikesCounter(couterElement, cardObjRes.likes.length);
+        renderLikesCounter(counterElement, cardDataRes.likes.length);
+        
       })
       .catch((err) => {
         console.log(err);
       });
   } else {
     deleteLikeApi(cardId)
-      .then((cardObjRes) => {
+      .then((cardDataRes) => {
         likeCard(likeElement);
-        renderLikesCounter(couterElement, cardObjRes.likes.length);
+        renderLikesCounter(counterElement, cardDataRes.likes.length);
+        
       })
       .catch((err) => {
         console.log(err);
@@ -226,12 +234,12 @@ function handlelikeCard(likeElement, couterElement, cardId, status) {
 }
 
 Promise.all([getUserApi(), getCardsApi()])
-  .then(([userObjRes, cardsObjRes]) => {
-    userId = userObjRes._id;
-    renderUser(userObjRes);
-    renderAvatar(userObjRes);
-    cardsObjRes.forEach(function (cardObjRes) {
-      cardContainer.append(createCard(cardObjRes, userId, handleDeleteCard, handlelikeCard, handleImageModal));
+  .then(([userDataRes, cardsObjRes]) => {
+    userId = userDataRes._id;
+    renderUser(userDataRes);
+    renderAvatar(userDataRes); 
+    cardsObjRes.forEach(function (cardDataRes) {
+      cardContainer.append(createCard(cardDataRes, userId, callbackConfig));
     });
   })
   .catch((err) => {
@@ -243,3 +251,4 @@ handleUserModal();
 handleCardModal();
 handleAvatarModal();
 handleDeleteModal();
+
